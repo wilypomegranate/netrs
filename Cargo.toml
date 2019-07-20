@@ -1,7 +1,7 @@
 [package]
 name = "netrs"
 description = "Userspace networking library and utilities"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["wilypomegranate <wilypomegranate@users.noreply.github.com>"]
 homepage = "https://github.com/wilypomegranate/netrs"
 edition = "2018"
