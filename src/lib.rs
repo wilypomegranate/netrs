@@ -1,2 +1,2 @@
-mod hw;
-mod net;
+pub mod hw;
+pub mod net;
