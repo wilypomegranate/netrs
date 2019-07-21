@@ -8,3 +8,4 @@ edition = "2018"
 license = "BSD-3-Clause"
 
 [dependencies]
+libc = "0.2.60"
