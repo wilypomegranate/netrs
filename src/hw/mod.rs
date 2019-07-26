@@ -75,7 +75,7 @@ pub mod socket {
 
 pub mod pcap {
 
-    use byteorder::{BigEndian, LittleEndian, NativeEndian, ReadBytesExt};
+    use byteorder::{BigEndian, ByteOrder, LittleEndian, NativeEndian, ReadBytesExt};
     use std::fs::File;
     use std::io::prelude::*;
     use std::io::BufReader;
@@ -99,10 +99,35 @@ pub mod pcap {
         pub orig_len: u32,
     }
 
+    pub struct PacketRecord<'a> {
+        pub data: &'a [u8],
+    }
+
+    impl<'a> PacketRecord<'a> {
+        pub fn ts_sec(&self) -> u32 {
+            NativeEndian::read_u32(&self.data[0..4])
+        }
+
+        pub fn ts_usec(&self) -> u32 {
+            NativeEndian::read_u32(&self.data[4..8])
+        }
+
+        pub fn incl_len(&self) -> u32 {
+            NativeEndian::read_u32(&self.data[8..12])
+        }
+
+        pub fn orig_len(&self) -> u32 {
+            NativeEndian::read_u32(&self.data[12..16])
+        }
+    }
+
     pub struct PcapReader {
         pub header: PcapHeader,
         reader: BufReader<File>,
         swap: bool,
+        record: Vec<u8>,
+        data: Vec<u8>,
+        // packet_record: PacketRecord<'a>,
     }
 
     impl PcapReader {
@@ -110,10 +135,18 @@ pub mod pcap {
             // let file = File::open(file);
             let mut reader = BufReader::new(File::open(file)?);
             let (header, swap) = PcapReader::read_header(&mut reader)?;
+            // let mut record = Vec::with_capacity(header.snaplen as usize);
+            // record = [0; header.snaplen];
+            let record = vec![0; 16];
+            let data = vec![0; header.snaplen as usize];
+            // let packet_record = PacketRecord { data: &record };
             let pcap_reader = PcapReader {
                 header,
                 reader,
                 swap,
+                record,
+                data,
+                // packet_record
             };
             Ok(pcap_reader)
         }
@@ -190,10 +223,21 @@ pub mod pcap {
             }
         }
 
-        pub fn read_data(&mut self, record: &PcapRecord, data: &mut [u8]) -> std::io::Result<()> {
-            self.reader.read_exact(&mut data[0..record.incl_len as usize])
+        pub fn read_data(&mut self, record: &PcapRecord) -> std::io::Result<()> {
+            self.reader
+                .read_exact(&mut self.record[0..record.incl_len as usize])
         }
 
+        pub fn read_packet(&mut self) -> std::io::Result<PacketRecord> {
+            match self.reader.read_exact(&mut self.record[0..16]) {
+                Ok(_) => {
+                    let record = PacketRecord{data: &self.record[0..16]};
+                    self.reader.read_exact(&mut self.data[0..record.incl_len() as usize]).unwrap();
+                    Ok(record)
+                }
+                Err(x) => Err(x)
+            }
+        }
     }
 
     // impl super::Interface for PcapReader {
