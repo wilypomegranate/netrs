@@ -22,7 +22,13 @@ pub mod ethernet {
             }
         }
         pub fn ethertype(&self) -> u16 {
-            0
+            // TODO Does not handle Q-in-Q vlan.
+            // See https://en.wikipedia.org/wiki/IEEE_802.1ad
+            // for more details.
+            match self.vlan() {
+                None => NativeEndian::read_u16(&self.data[20..22]),
+                Some(_x) => NativeEndian::read_u16(&self.data[24..26])
+            }
         }
     }
 }
