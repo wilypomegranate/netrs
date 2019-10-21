@@ -21,7 +21,7 @@ pub mod ethernet {
                 None
             }
         }
-        pub fn ethertype(&self) -> u64 {
+        pub fn ethertype(&self) -> u16 {
             0
         }
     }
