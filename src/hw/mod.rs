@@ -119,6 +119,10 @@ pub mod pcap {
         pub fn orig_len(&self) -> u32 {
             NativeEndian::read_u32(&self.data[12..16])
         }
+
+        pub fn payload(&self) -> &[u8] {
+            &self.data[16..self.incl_len() as usize]
+        }
     }
 
     pub struct PcapReader {
