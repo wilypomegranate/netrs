@@ -1,6 +1,10 @@
 pub mod l2 {
-    pub trait Layer2Handler {
-        fn handle(&self, record: &crate::hw::pcap::PacketRecord);
+    pub trait ArpHandler {
+        fn handle_arp(&self, record: &crate::hw::pcap::PacketRecord);
+    }
+
+    pub trait Ipv4Handler {
+        fn handle_ipv4(&self, record: &crate::hw::pcap::PacketRecord);
     }
 
     pub struct DefaultHandler {}
@@ -9,19 +13,13 @@ pub mod l2 {
         pub fn handle(&self, _record: &crate::hw::pcap::PacketRecord) {}
     }
 
-    pub struct EthernetHandler<'a, ArpHandler = DefaultHandler, Ipv4Handler = DefaultHandler> {
-        arp_handler: &'a mut ArpHandler,
-        ipv4_handler: &'a mut Ipv4Handler,
+    pub struct EthernetHandler<'a, Handler = DefaultHandler> {
+        handler: &'a mut Handler,
     }
 
-    impl<'a, ArpHandler: Layer2Handler, Ipv4Handler: Layer2Handler>
-        EthernetHandler<'a, ArpHandler, Ipv4Handler>
-    {
-        fn new(arp_handler: &'a mut ArpHandler, ipv4_handler: &'a mut Ipv4Handler) -> Self {
-            Self {
-                arp_handler,
-                ipv4_handler,
-            }
+    impl<'a, Handler: ArpHandler + Ipv4Handler> EthernetHandler<'a, Handler> {
+        fn new(handler: &'a mut Handler) -> Self {
+            Self { handler }
         }
 
         fn handle(&self, record: &crate::hw::pcap::PacketRecord) {
@@ -30,7 +28,7 @@ pub mod l2 {
             // TODO Handle known ethertypes.
 
             // TODO Handle arp messages for arp table.
-            self.arp_handler.handle(record);
+            self.handler.handle_arp(record);
         }
     }
 }
