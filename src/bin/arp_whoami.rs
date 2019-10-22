@@ -1,6 +1,7 @@
 extern crate netrs;
 
-use netrs::hw::pcap::{PcapReader, PacketRecord};
+use netrs::handler::l2::{ArpHandler, DefaultHandler, EthernetHandler, Ipv4Handler};
+use netrs::hw::pcap::{PacketRecord, PcapReader};
 use netrs::hw::socket::RawSocket;
 use netrs::hw::Interface;
 use std::env;
@@ -14,9 +15,12 @@ pub fn main() {
     let args: Vec<String> = env::args().collect();
 
     let mut pcap: PcapReader = PcapReader::new(&args[1]).expect("Pcap reader error.");
+    let mut handler = DefaultHandler {};
+    let eth_handler = EthernetHandler::new(&mut handler);
 
     let mut count: usize = 0;
     while let Ok(record) = pcap.read_packet() {
+        eth_handler.handle(&record);
         // println!(
         //     "sec: {}, usec: {}, incl_len: {}, orig_len: {}",
         //     record.ts_sec(), record.ts_usec(), record.incl_len(), record.orig_len()
