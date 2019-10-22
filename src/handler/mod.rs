@@ -1,16 +1,15 @@
 pub mod l2 {
     pub trait ArpHandler {
-        fn handle_arp(&self, record: &crate::hw::pcap::PacketRecord);
+        fn handle_arp(&self, record: &crate::hw::pcap::PacketRecord) {}
     }
 
     pub trait Ipv4Handler {
-        fn handle_ipv4(&self, record: &crate::hw::pcap::PacketRecord);
+        fn handle_ipv4(&self, record: &crate::hw::pcap::PacketRecord) {}
     }
 
     pub struct DefaultHandler {}
 
     impl DefaultHandler {
-        pub fn handle(&self, _record: &crate::hw::pcap::PacketRecord) {}
     }
 
     pub struct EthernetHandler<'a, Handler = DefaultHandler> {
