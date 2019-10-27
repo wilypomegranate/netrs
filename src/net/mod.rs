@@ -1,6 +1,12 @@
 pub mod ethernet {
     use byteorder::{ByteOrder, NativeEndian};
 
+    pub enum EtherType {
+        Arp,
+        Ipv4,
+        Unknown(u16)
+    }
+
     pub struct Ethernet<'a> {
         data: &'a [u8],
     }
@@ -21,13 +27,19 @@ pub mod ethernet {
                 None
             }
         }
-        pub fn ethertype(&self) -> u16 {
+        pub fn ethertype(&self) -> EtherType {
             // TODO Does not handle Q-in-Q vlan.
             // See https://en.wikipedia.org/wiki/IEEE_802.1ad
             // for more details.
-            match self.vlan() {
+            let ethertype = match self.vlan() {
                 None => NativeEndian::read_u16(&self.data[20..22]),
                 Some(_x) => NativeEndian::read_u16(&self.data[24..26])
+            };
+
+            match ethertype {
+                0x0800 => EtherType::Ipv4,
+                0x0806 => EtherType::Arp,
+                _ => EtherType::Unknown(ethertype)
             }
         }
     }

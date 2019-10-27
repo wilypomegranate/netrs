@@ -1,7 +1,9 @@
 pub mod l2 {
+    use crate::net::ethernet::{EtherType};
+
     pub trait EthernetHandler {
-        fn handle_arp(&self, record: &crate::hw::pcap::PacketRecord) {}
-        fn handle_ipv4(&self, record: &crate::hw::pcap::PacketRecord) {}
+        fn handle_arp(&self, _record: &crate::hw::pcap::PacketRecord) {}
+        fn handle_ipv4(&self, _record: &crate::hw::pcap::PacketRecord) {}
     }
 
     pub struct DefaultHandler {}
