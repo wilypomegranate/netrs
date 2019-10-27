@@ -1,9 +1,6 @@
 pub mod l2 {
-    pub trait ArpHandler {
+    pub trait EthernetHandler {
         fn handle_arp(&self, record: &crate::hw::pcap::PacketRecord) {}
-    }
-
-    pub trait Ipv4Handler {
         fn handle_ipv4(&self, record: &crate::hw::pcap::PacketRecord) {}
     }
 
@@ -12,14 +9,13 @@ pub mod l2 {
     impl DefaultHandler {
     }
 
-    impl ArpHandler for DefaultHandler {}
-    impl Ipv4Handler for DefaultHandler {}
+    impl EthernetHandler for DefaultHandler {}
 
-    pub struct EthernetHandler<'a, Handler = DefaultHandler> {
+    pub struct EthernetReceiver<'a, Handler = DefaultHandler> {
         handler: &'a mut Handler,
     }
 
-    impl<'a, Handler: ArpHandler + Ipv4Handler> EthernetHandler<'a, Handler> {
+    impl<'a, Handler: EthernetHandler> EthernetReceiver<'a, Handler> {
         pub fn new(handler: &'a mut Handler) -> Self {
             Self { handler }
         }
