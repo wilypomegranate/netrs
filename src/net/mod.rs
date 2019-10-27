@@ -1,10 +1,11 @@
 pub mod ethernet {
     use byteorder::{ByteOrder, NativeEndian};
 
+    #[repr(u16)]
     pub enum EtherType {
-        Arp,
-        Ipv4,
-        Unknown(u16)
+        Arp = 0x0806,
+        Ipv4 = 0x0800,
+        Unknown(u16),
     }
 
     pub struct Ethernet<'a> {
@@ -22,8 +23,7 @@ pub mod ethernet {
             let vlan_ethertype: u16 = NativeEndian::read_u16(&self.data[20..22]);
             if vlan_ethertype == 0x8100 {
                 Some(NativeEndian::read_u16(&self.data[22..24]))
-            }
-            else {
+            } else {
                 None
             }
         }
@@ -33,13 +33,13 @@ pub mod ethernet {
             // for more details.
             let ethertype = match self.vlan() {
                 None => NativeEndian::read_u16(&self.data[20..22]),
-                Some(_x) => NativeEndian::read_u16(&self.data[24..26])
+                Some(_x) => NativeEndian::read_u16(&self.data[24..26]),
             };
 
             match ethertype {
                 0x0800 => EtherType::Ipv4,
                 0x0806 => EtherType::Arp,
-                _ => EtherType::Unknown(ethertype)
+                _ => EtherType::Unknown(ethertype),
             }
         }
     }
