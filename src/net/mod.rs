@@ -44,3 +44,31 @@ pub mod ethernet {
         }
     }
 }
+
+pub mod arp {
+    use byteorder::{ByteOrder, NativeEndian};
+
+    pub struct Arp<'a> {
+        data: &'a [u8],
+    }
+
+    pub fn htype() -> u16 {
+        0
+    }
+
+    pub fn ptype() -> u16 {
+        0
+    }
+
+    pub fn hlen() -> u8 {
+        0
+    }
+
+    pub fn plen() -> u8 {
+        0
+    }
+
+    pub fn operation() -> u16 {
+        0
+    }
+}
