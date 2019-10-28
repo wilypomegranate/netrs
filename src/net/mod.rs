@@ -1,10 +1,9 @@
 pub mod ethernet {
     use byteorder::{ByteOrder, NativeEndian};
 
-    #[repr(u16)]
     pub enum EtherType {
-        Arp = 0x0806,
-        Ipv4 = 0x0800,
+        Arp,
+        Ipv4,
         Unknown(u16),
     }
 
