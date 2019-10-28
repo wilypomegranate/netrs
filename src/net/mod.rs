@@ -46,13 +46,25 @@ pub mod ethernet {
 
 pub mod mac {
 
+    use std::fmt;
+
     pub struct MacAddress<'a> {
         addr: &'a [u8],
     }
 
     impl<'a> MacAddress<'a> {
         pub fn new(data: &'a [u8]) -> MacAddress<'a> {
-            MacAddress { addr: data}
+            MacAddress { addr: data }
+        }
+    }
+
+    impl<'a> fmt::Display for MacAddress<'a> {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(
+                f,
+                "{}:{}:{}:{}:{}:{}",
+                self.addr[0], self.addr[1], self.addr[2], self.addr[3], self.addr[4], self.addr[5]
+            )
         }
     }
 }
@@ -66,24 +78,24 @@ pub mod arp {
     }
 
     impl<'a> Arp<'a> {
-        pub fn htype() -> u16 {
-            0
+        pub fn htype(&self) -> u16 {
+            NativeEndian::read_u16(&self.data[0..2])
         }
 
-        pub fn ptype() -> u16 {
-            0
+        pub fn ptype(&self) -> u16 {
+            NativeEndian::read_u16(&self.data[2..4])
         }
 
-        pub fn hlen() -> u8 {
-            0
+        pub fn hlen(&self) -> u8 {
+            self.data[4]
         }
 
-        pub fn plen() -> u8 {
-            0
+        pub fn plen(&self) -> u8 {
+            self.data[5]
         }
 
-        pub fn oper() -> u16 {
-            0
+        pub fn oper(&self) -> u16 {
+            NativeEndian::read_u16(&self.data[6..8])
         }
 
         pub fn sha(&self) -> MacAddress<'a> {
